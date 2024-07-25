@@ -3,8 +3,9 @@ import GameBoard from "./components/GameBoard";
 import { useState } from "react";
 import Log from "./components/Log";
 import { WINNING_COMBINATIONS } from "./winning-combinations";
+import GameOver from "./components/GameOver";
 
-const initialGameBoard = [
+let initialGameBoard = [
   [null, null, null],
   [null, null, null],
   [null, null, null],
@@ -13,7 +14,7 @@ const initialGameBoard = [
 function App() {
   const [activePlayer, setActivePlayer] = useState("X");
   const [gameTurns, setGameTurns] = useState([]);
-  const [hasWinner, setHasWinner] = useState(false);
+  const [winner, setWinner] = useState();
   function checkWinner() {
     for (const combination of WINNING_COMBINATIONS) {
       const firstNode =
@@ -23,11 +24,23 @@ function App() {
       const thirdNode =
         initialGameBoard[combination[2].row][combination[2].column];
       if (firstNode === secondNode && secondNode === thirdNode && firstNode) {
-        setHasWinner(true);
-        console.log(hasWinner);
+        setWinner(firstNode);
       }
     }
-    console.log(hasWinner);
+    console.log(winner);
+  }
+
+  let draw = gameTurns.length === 9 && !winner;
+
+  function handleRestart() {
+    setGameTurns([]);
+    initialGameBoard = [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
+    ];
+    setWinner(null);
+    draw = false;
   }
 
   function handleSelectSquare(rowIndex, colIndex) {
@@ -69,6 +82,9 @@ function App() {
           turns={gameTurns}
           gameBoard={initialGameBoard}
         />
+        {winner || draw ? (
+          <GameOver winner={winner} restart={handleRestart} />
+        ) : null}
       </div>
       <Log turns={gameTurns} />
     </main>
